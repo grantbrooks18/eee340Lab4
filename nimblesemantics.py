@@ -48,7 +48,6 @@ class DefineScopesAndSymbols(NimbleListener):
     def enterScript(self, ctx: NimbleParser.ScriptContext):
         MyGlobal = Scope("$global", None, None)
         ctx.scope = MyGlobal
-        pass
 
     def enterFuncDef(self, ctx: NimbleParser.FuncDefContext):
         # todo Create a scope for the function
@@ -60,7 +59,8 @@ class DefineScopesAndSymbols(NimbleListener):
 
     def enterMain(self, ctx: NimbleParser.MainContext):
         # Todo create the $main scope
-        pass
+        MyMain = Scope("$main", None, ctx.parentCtx.scope)
+        ctx.scope = MyMain
 
 
 class InferTypesAndCheckConstraints(NimbleListener):

@@ -237,15 +237,15 @@ class ScopeCreationTests(unittest.TestCase):
         self.assertIsInstance(global_scope, Scope)
         self.assertEqual('$global', global_scope.name)
         self.assertEqual(0, log.total_entries())
-    #
-    # def test_main_defines_scope(self):
-    #     log, global_scope, inferred_types = do_semantic_analysis(
-    #         '', 'script')  # , first_phase_only=True)
-    #     self.assertEqual(1, len(global_scope.child_scopes))
-    #     self.assertIsNotNone(global_scope.child_scope_named('$main'))
-    #     main_scopes = global_scope.all_child_scopes_named('$main')
-    #     self.assertEqual(1, len(main_scopes))
-    #     self.assertIsInstance(main_scopes[0], Scope)
+
+    def test_main_defines_scope(self):
+        log, global_scope, inferred_types = do_semantic_analysis(
+            '', 'script')  # , first_phase_only=True)
+        self.assertEqual(1, len(global_scope.child_scopes))
+        self.assertIsNotNone(global_scope.child_scope_named('$main'))
+        main_scopes = global_scope.all_child_scopes_named('$main')
+        self.assertEqual(1, len(main_scopes))
+        self.assertIsInstance(main_scopes[0], Scope)
 
 
 
