@@ -136,45 +136,6 @@ class TypeAndStatementTests(unittest.TestCase):
     """
 
 
-    VARDEC_TESTS = [
-
-        ("var Apple : Int", PrimitiveType.Int, "Apple"),
-        ("var Apple : Int = 1 ", PrimitiveType.Int, "Apple"),
-        ("var Apple : Int = true ", PrimitiveType.ERROR, "Apple"),
-        ("var Apple : Int = \"Hello\" ", PrimitiveType.ERROR, "Apple"),
-
-        ("var Pear : Bool = true ", PrimitiveType.Bool, "Pear"),
-        ("var Pear : Bool = false ", PrimitiveType.Bool, "Pear"),
-        ("var Pear : Bool = \"Hello\" ", PrimitiveType.ERROR, "Pear"),
-        ("var Pear : Bool = 654 ", PrimitiveType.ERROR, "Pear"),
-        ("var Pear : Bool", PrimitiveType.Bool, "Pear"),
-
-        ("var nectarine : String = 654 ", PrimitiveType.ERROR, "nectarine"),
-        ("var nectarine : String = \"Hello\" ", PrimitiveType.String, "nectarine"),
-        ("var nectarine : String = true ", PrimitiveType.ERROR, "nectarine"),
-        ("var nectarine : String", PrimitiveType.String, "nectarine"),
-    ]
-
-    VARASSIGN_TESTS_valid = [
-        ("Apple = 1", PrimitiveType.Int, "Apple", {"Apple": PrimitiveType.Int}),
-        ("Pear = true", PrimitiveType.Bool, "Pear", {"Pear": PrimitiveType.Bool}),
-        ("nectarine = \"The Best Fruit\"", PrimitiveType.String, "nectarine", {"nectarine": PrimitiveType.String}),
-    ]
-
-    VARASSIGN_TESTS_invalid = [
-        ("Apple = true", PrimitiveType.ERROR, "Apple", {"Apple": PrimitiveType.Int}),
-        ("Apple = \"Hello\"", PrimitiveType.ERROR, "Apple", {"Apple": PrimitiveType.Int}),
-        ("Apple = 1", PrimitiveType.ERROR, "Apple", {"Apple": PrimitiveType.ERROR}),
-
-        ("Pear = 5", PrimitiveType.ERROR, "Pear", {"Pear": PrimitiveType.Bool}),
-        ("Pear = \"Hello\"", PrimitiveType.ERROR, "Pear", {"Pear": PrimitiveType.Bool}),
-        ("Pear = true", PrimitiveType.ERROR, "Pear", {"Pear": PrimitiveType.ERROR}),
-
-        ("nectarine = 5", PrimitiveType.ERROR, "nectarine", {"nectarine": PrimitiveType.String}),
-        ("nectarine = true", PrimitiveType.ERROR, "nectarine", {"nectarine": PrimitiveType.String}),
-        ("nectarine = \"Hello\"", PrimitiveType.ERROR, "nectarine", {"nectarine": PrimitiveType.ERROR}),
-
-    ]
 
     def test_valid_expressions(self):
         """
@@ -269,13 +230,13 @@ class ScopeCreationTests(unittest.TestCase):
     Two example tests provided.
     """
 
-    # def test_script_defines_global_scope(self):
-    #     log, global_scope, inferred_types = do_semantic_analysis(
-    #         '', 'script')  # , first_phase_only=True)
-    #     self.assertIsNotNone(global_scope)
-    #     self.assertIsInstance(global_scope, Scope)
-    #     self.assertEqual('$global', global_scope.name)
-    #     self.assertEqual(0, log.total_entries())
+    def test_script_defines_global_scope(self):
+        log, global_scope, inferred_types = do_semantic_analysis(
+            '', 'script', first_phase_only=True)
+        self.assertIsNotNone(global_scope)
+        self.assertIsInstance(global_scope, Scope)
+        self.assertEqual('$global', global_scope.name)
+        self.assertEqual(0, log.total_entries())
     #
     # def test_main_defines_scope(self):
     #     log, global_scope, inferred_types = do_semantic_analysis(

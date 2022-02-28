@@ -45,6 +45,23 @@ class DefineScopesAndSymbols(NimbleListener):
         self.error_log = error_log
         self.current_scope = None
 
+    def enterScript(self, ctx: NimbleParser.ScriptContext):
+        MyGlobal = Scope("$global", None, None)
+        ctx.scope = MyGlobal
+        pass
+
+    def enterFuncDef(self, ctx: NimbleParser.FuncDefContext):
+        # todo Create a scope for the function
+        pass
+
+    def exitFuncDef(self, ctx: NimbleParser.FuncDefContext):
+        # todo Move the curent scope back to the global
+        pass
+
+    def enterMain(self, ctx: NimbleParser.MainContext):
+        # Todo create the $main scope
+        pass
+
 
 class InferTypesAndCheckConstraints(NimbleListener):
 
@@ -52,8 +69,7 @@ class InferTypesAndCheckConstraints(NimbleListener):
         self.error_log = error_log
         self.current_scope = None
 
-
-# --------------------------------------------------------
+    # --------------------------------------------------------
     # Program structure
     # Deliberately left blank because the examples shown in class did not
     # have any tests in these areas, as there is no type to assign.
@@ -130,59 +146,59 @@ class InferTypesAndCheckConstraints(NimbleListener):
     #
     #     self.variables[newkey] = ctx.type
 
-        # print(self.variables)
+    # print(self.variables)
 
     # --------------------------------------------------------
     # Statements
     # --------------------------------------------------------
 
-   # def exitAssignment(self, ctx: NimbleParser.AssignmentContext):
-   #     vartype = self.variables[str(ctx.ID())]
-   #
-   #     if vartype == PrimitiveType.Int:
-   #         if ctx.expr().type == PrimitiveType.Int:
-   #             ctx.type = PrimitiveType.Int
-   #             ctx.valid = True
-   #         else:
-   #             ctx.type = PrimitiveType.ERROR
-   #             self.error_log.add(ctx, Category.ASSIGN_TO_WRONG_TYPE,
-   #                                f"{ctx.ID()} is declared type {vartype}\n\t"
-   #                                f"you tried to assigning a {ctx.expr().type} to it\n\t"
-   #                               f"This is an illegal operation. Straight to jail")
-   #
-   #
-   #     elif vartype == PrimitiveType.Bool:
-   #
-   #         if ctx.expr().type == PrimitiveType.Bool:
-   #             ctx.type = PrimitiveType.Bool
-   #             ctx.valid = True
-   #        else:
-   #             ctx.type = PrimitiveType.ERROR
-   #             ctx.valid = False
-   #             self.error_log.add(ctx, Category.ASSIGN_TO_WRONG_TYPE,
-   #                                f"{ctx.ID()} is declared type {vartype}\n\t"
-   #                                f"you tried to assigning a {ctx.expr().type} to it\n\t"
-   #                                f"This is an illegal operation. Straight to jail")
-   #     elif vartype == PrimitiveType.String:
-   #         if ctx.expr().type == PrimitiveType.String:
-   #             ctx.type = PrimitiveType.String
-   #             ctx.valid = True
-   #         else:
-   #             ctx.type = PrimitiveType.ERROR
-   #             ctx.valid = False
-   #          self.error_log.add(ctx, Category.ASSIGN_TO_WRONG_TYPE,
-   #                                f"{ctx.ID()} is declared type {vartype}\n\t"
-   #                                f"you tried to assigning a {ctx.expr().type} to it\n\t"
-   #                                f"This is an illegal operation. Straight to jail")
-   #
-   #     else:
-   #         ctx.type = PrimitiveType.ERROR
-   #         ctx.valid = False
-   #         self.error_log.add(ctx, Category.ASSIGN_TO_WRONG_TYPE,
-   #                            f"{ctx.ID()} has previously been missassigned\n\t")
-   #
-   #      newkey = str(ctx.ID())
-   #      self.variables[newkey] = ctx.type
+    # def exitAssignment(self, ctx: NimbleParser.AssignmentContext):
+    #     vartype = self.variables[str(ctx.ID())]
+    #
+    #     if vartype == PrimitiveType.Int:
+    #         if ctx.expr().type == PrimitiveType.Int:
+    #             ctx.type = PrimitiveType.Int
+    #             ctx.valid = True
+    #         else:
+    #             ctx.type = PrimitiveType.ERROR
+    #             self.error_log.add(ctx, Category.ASSIGN_TO_WRONG_TYPE,
+    #                                f"{ctx.ID()} is declared type {vartype}\n\t"
+    #                                f"you tried to assigning a {ctx.expr().type} to it\n\t"
+    #                               f"This is an illegal operation. Straight to jail")
+    #
+    #
+    #     elif vartype == PrimitiveType.Bool:
+    #
+    #         if ctx.expr().type == PrimitiveType.Bool:
+    #             ctx.type = PrimitiveType.Bool
+    #             ctx.valid = True
+    #        else:
+    #             ctx.type = PrimitiveType.ERROR
+    #             ctx.valid = False
+    #             self.error_log.add(ctx, Category.ASSIGN_TO_WRONG_TYPE,
+    #                                f"{ctx.ID()} is declared type {vartype}\n\t"
+    #                                f"you tried to assigning a {ctx.expr().type} to it\n\t"
+    #                                f"This is an illegal operation. Straight to jail")
+    #     elif vartype == PrimitiveType.String:
+    #         if ctx.expr().type == PrimitiveType.String:
+    #             ctx.type = PrimitiveType.String
+    #             ctx.valid = True
+    #         else:
+    #             ctx.type = PrimitiveType.ERROR
+    #             ctx.valid = False
+    #          self.error_log.add(ctx, Category.ASSIGN_TO_WRONG_TYPE,
+    #                                f"{ctx.ID()} is declared type {vartype}\n\t"
+    #                                f"you tried to assigning a {ctx.expr().type} to it\n\t"
+    #                                f"This is an illegal operation. Straight to jail")
+    #
+    #     else:
+    #         ctx.type = PrimitiveType.ERROR
+    #         ctx.valid = False
+    #         self.error_log.add(ctx, Category.ASSIGN_TO_WRONG_TYPE,
+    #                            f"{ctx.ID()} has previously been missassigned\n\t")
+    #
+    #      newkey = str(ctx.ID())
+    #      self.variables[newkey] = ctx.type
 
     def exitWhile(self, ctx: NimbleParser.WhileContext):
         if ctx.expr().type != PrimitiveType.Bool:
@@ -263,14 +279,13 @@ class InferTypesAndCheckConstraints(NimbleListener):
             self.error_log.add(ctx, Category.INVALID_BINARY_OP,
                                f"Can't apply {ctx.op.text} to {ctx.expr(0).type.name} and {ctx.expr(1).type.name}")
 
-    #def exitVariable(self, ctx: NimbleParser.VariableContext):
-     #   if str(ctx.ID()) in self.variables:
-      #      ctx.type = self.variables[str(ctx.ID())]
-#
- #       else:
-  #          self.error_log.add(ctx,Category.UNDEFINED_NAME,
-   #                            f"This {str(ctx.ID())} has not been defined")
-
+    # def exitVariable(self, ctx: NimbleParser.VariableContext):
+    #   if str(ctx.ID()) in self.variables:
+    #      ctx.type = self.variables[str(ctx.ID())]
+    #
+    #       else:
+    #          self.error_log.add(ctx,Category.UNDEFINED_NAME,
+    #                            f"This {str(ctx.ID())} has not been defined")
 
     def exitStringLiteral(self, ctx: NimbleParser.StringLiteralContext):
         ctx.type = PrimitiveType.String
