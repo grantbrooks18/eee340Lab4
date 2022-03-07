@@ -44,6 +44,7 @@ class DefineScopesAndSymbols(NimbleListener):
     def __init__(self, error_log: ErrorLog):
         self.error_log = error_log
         self.current_scope = None
+        # todo add way to poll if there is already a name with that scope
 
     def enterScript(self, ctx: NimbleParser.ScriptContext):
         MyGlobal = Scope("$global", None, None)
@@ -56,12 +57,9 @@ class DefineScopesAndSymbols(NimbleListener):
         self.current_scope = MyScope
 
     def exitFuncDef(self, ctx: NimbleParser.FuncDefContext):
-        # todo Move the curent scope back to the global
         self.current_scope = ctx.parentCtx.scope
 
     def enterMain(self, ctx: NimbleParser.MainContext):
-        # Todo create the $main scope
-
         MyMain = Scope("$main", None, self.current_scope)
         ctx.scope = MyMain
         self.current_scope = MyMain

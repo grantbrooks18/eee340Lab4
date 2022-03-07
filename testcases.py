@@ -114,15 +114,18 @@ VARASSIGN_TESTS_invalid = [
     ("Apple = \"Hello\"", PrimitiveType.ERROR,  "Apple",{"Apple" : PrimitiveType.Int}),
     ("Apple = 1", PrimitiveType.ERROR,  "Apple",{"Apple" : PrimitiveType.ERROR}),
 
-    ("Pear = 5", PrimitiveType.ERROR, "Pear",{"Pear" : PrimitiveType.Bool}),
-    ("Pear = \"Hello\"", PrimitiveType.ERROR, "Pear",{"Pear" : PrimitiveType.Bool}),
-    ("Pear = true", PrimitiveType.ERROR, "Pear",{"Pear" : PrimitiveType.ERROR}),
+    ("Pear = 5", PrimitiveType.ERROR, "Pear", {"Pear": PrimitiveType.Bool}),
+    ("Pear = \"Hello\"", PrimitiveType.ERROR, "Pear", {"Pear": PrimitiveType.Bool}),
+    ("Pear = true", PrimitiveType.ERROR, "Pear", {"Pear": PrimitiveType.ERROR}),
 
-    ("nectarine = 5", PrimitiveType.ERROR, "nectarine", {"nectarine": PrimitiveType.String }),
-    ("nectarine = true", PrimitiveType.ERROR, "nectarine", {"nectarine": PrimitiveType.String }),
-    ("nectarine = \"Hello\"", PrimitiveType.ERROR, "nectarine", {"nectarine": PrimitiveType.ERROR }),
+    ("nectarine = 5", PrimitiveType.ERROR, "nectarine", {"nectarine": PrimitiveType.String}),
+    ("nectarine = true", PrimitiveType.ERROR, "nectarine", {"nectarine": PrimitiveType.String}),
+    ("nectarine = \"Hello\"", PrimitiveType.ERROR, "nectarine", {"nectarine": PrimitiveType.ERROR}),
 
 ]
+
+OneFunctiontorulethemall = "func fone(){var Apple : Int = 1 }fone()"
+OneFunctiontofindthem = "func fone(){var Apple : Int = 1 }fone(){var nectarine : String = \"Hello\"  }fone()"
 
 
 class TypeAndStatementTests(unittest.TestCase):
@@ -246,6 +249,15 @@ class ScopeCreationTests(unittest.TestCase):
         main_scopes = global_scope.all_child_scopes_named('$main')
         self.assertEqual(1, len(main_scopes))
         self.assertIsInstance(main_scopes[0], Scope)
+
+    def test_one_function_scope(self):
+        log, global_scope, inferred_types = do_semantic_analysis(OneFunctiontorulethemall, 'script')
+        self.assertEqual(2, len(global_scope.child_scopes))
+        self.assertIsNotNone(global_scope.child_scope_named('fone'))
+        funcscope = global_scope.all_child_scopes_named('fone')
+        self.assertEqual(global_scope, funcscope[0].enclosing_scope)
+        self.assertIsInstance(funcscope[0], Scope)
+        self.assertEqual(1, len(funcscope))
 
         # todo Add a test to add one function call.
 
