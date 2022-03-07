@@ -247,6 +247,7 @@ class ScopeCreationTests(unittest.TestCase):
         self.assertEqual(1, len(main_scopes))
         self.assertIsInstance(main_scopes[0], Scope)
 
+        # todo Add a test to add one function call.
 
 
 class FunctionSymbols(unittest.TestCase):

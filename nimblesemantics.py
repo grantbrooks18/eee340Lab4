@@ -48,19 +48,23 @@ class DefineScopesAndSymbols(NimbleListener):
     def enterScript(self, ctx: NimbleParser.ScriptContext):
         MyGlobal = Scope("$global", None, None)
         ctx.scope = MyGlobal
+        self.current_scope = MyGlobal
 
     def enterFuncDef(self, ctx: NimbleParser.FuncDefContext):
-        # todo Create a scope for the function
-        pass
+        MyScope = Scope(str(ctx.ID()), ctx.TYPE(), self.current_scope)
+        ctx.scope = MyScope
+        self.current_scope = MyScope
 
     def exitFuncDef(self, ctx: NimbleParser.FuncDefContext):
         # todo Move the curent scope back to the global
-        pass
+        self.current_scope = ctx.parentCtx.scope
 
     def enterMain(self, ctx: NimbleParser.MainContext):
         # Todo create the $main scope
-        MyMain = Scope("$main", None, ctx.parentCtx.scope)
+
+        MyMain = Scope("$main", None, self.current_scope)
         ctx.scope = MyMain
+        self.current_scope = MyMain
 
 
 class InferTypesAndCheckConstraints(NimbleListener):
