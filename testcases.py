@@ -322,14 +322,7 @@ class FunctionSymbols(unittest.TestCase):
         self.assertEqual(3, funcscope.parameter_index)
         self.assertIsNotNone(log)
 
-    # Todo Fix this one, as it has zero errors
-    def test_function_return_type(self):
-        log, global_scope, inferred_types = do_semantic_analysis(ReturnTest, 'script')
-        self.assertEqual(1, log.total_entries())  # Bool returned as Int
 
-    def test_function_return_type2(self):
-        log, global_scope, inferred_types = do_semantic_analysis(ReturnTest1, 'script')
-        self.assertEqual(0, log.total_entries())
 
 
 # Used to test the functions.
@@ -381,7 +374,8 @@ class ParameterAndVariableSymbols(unittest.TestCase):
         log, global_scope, inferred_types = do_semantic_analysis(DoubleVars, 'script')
         testing = global_scope.all_child_scopes_named('$main')[0]
 
-        self.assertEqual(1, testing.variable_index)
+        self.assertEqual(2, testing.variable_index)
+        self.assertIsNotNone(log)
 
 
 class FunctionTests(unittest.TestCase):
@@ -396,4 +390,12 @@ class ReturnTests(unittest.TestCase):
     """
     Tests valid and invalid return statements, in both functions and the main.
     """
-    pass
+
+    # Todo Fix this one, as it has zero errors
+    def test_function_return_type(self):
+        log, global_scope, inferred_types = do_semantic_analysis(ReturnTest, 'script')
+        self.assertEqual(1, log.total_entries())  # Bool returned as Int
+
+    def test_function_return_type2(self):
+        log, global_scope, inferred_types = do_semantic_analysis(ReturnTest1, 'script')
+        self.assertEqual(0, log.total_entries())
