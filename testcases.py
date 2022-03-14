@@ -273,8 +273,6 @@ OneFunctiononeparam = "func fone(Banana : Int ){var Apple : Int = 1 }fone()"
 OneFunctionmanyparam = "func fone(Banana : Int, Pear : Int, Pineapple : Int ){var Apple : Int = 1 }fone()"
 OneFunctionBadparam = "func fone(Banana : Int, Banana : String, Pineapple : Int ){var Apple : Int = 1 }fone()"
 
-ReturnTest = "func fone(Para1 : Int, Banana : Int, Pineapple : Int ) -> Int {var Apple : Bool = 1 return 1}fone()"
-ReturnTest1 = "func fone(Para1 : Int, Banana : Int, Pineapple : Int ) -> Int {var Apple : Int = 1 return Apple}fone()"
 
 
 class FunctionSymbols(unittest.TestCase):
@@ -384,6 +382,10 @@ class FunctionTests(unittest.TestCase):
     function calls.
     """
     pass
+
+
+ReturnTest = "func fone(Para1 : Int, Banana : Int, Pineapple : Int ) -> Int {var Apple : Bool = 1 return 1}fone()"
+ReturnTest1 = "func fone(Para1 : Int, Banana : Int, Pineapple : Int ) -> Int {var Apple : Int = 1 return Apple}fone()"
 
 
 class ReturnTests(unittest.TestCase):
