@@ -376,12 +376,26 @@ class ParameterAndVariableSymbols(unittest.TestCase):
         self.assertIsNotNone(log)
 
 
+CorrectFunctionWithParameters = "func fone(apple : Int) {var pear : Int = apple } fone(5)"
+
+
+# OneFunctiononeparam = "func fone(Banana : Int ){var Apple : Int = 1 }fone()"
 class FunctionTests(unittest.TestCase):
     """
     Tests functions used as variables, successful function calls, and failed
     function calls.
     """
-    pass
+
+    def test_function_using_parameters(self):
+        log, global_scope, inferred_types = do_semantic_analysis(CorrectFunctionWithParameters, 'script')
+        testing = global_scope.all_child_scopes_named('fone')[0]
+
+        self.assertEqual(1, testing.parameter_index)
+        self.assertEqual(1, testing.variable_index)
+        test = testing.parameters()[0]
+        test = test.type.value
+
+        self.assertEqual(5, testing.parameters()[1])
 
 
 ReturnTest = "func fone(Para1 : Int, Banana : Int, Pineapple : Int ) -> Int {var Apple : Bool = 1 return 1}fone()"
