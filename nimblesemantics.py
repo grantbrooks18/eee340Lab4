@@ -53,16 +53,26 @@ class DefineScopesAndSymbols(NimbleListener):
 
     def enterFuncDef(self, ctx: NimbleParser.FuncDefContext):
         # adding testing to see if the function name as already been chosen
-        test = self.current_scope.resolve(ctx.ID())
+        test = self.current_scope.resolve(str(ctx.ID()))
 
-        if not test:
-            raise "A function with this name has already been created"
+        if test:
+            print("A function with this name has already been created")
+            return
+
+        parameters = ctx.parameterDef()
+
+        myfunc = FunctionType(parameters, ctx.TYPE())
+
+        self.current_scope.define(ctx.ID(), myfunc)
 
         MyScope = Scope(str(ctx.ID()), ctx.TYPE(), self.current_scope)
 
         self.current_scope.define(str(ctx.ID()), ctx.TYPE())
         ctx.scope = MyScope
         self.current_scope = MyScope
+
+        for parameter in parameters:
+            self.current_scope.define(parameter.ID(), parameter.TYPE(), True)
 
     def exitFuncDef(self, ctx: NimbleParser.FuncDefContext):
         self.current_scope = ctx.parentCtx.scope

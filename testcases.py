@@ -128,6 +128,13 @@ OneFunctiontorulethemall = "func fone(){var Apple : Int = 1 }fone()"
 OneFunctiontofindthem = "func fone(){var Apple : Int = 1 } " \
                         "func fone(){var nectarine : String = \"Hello\"} " \
                         "var Pear : Bool = true "
+ThreeFunctionsfortheElvenkingsunderthessky = "func fone(){var Apple : Int = 1 } " \
+                                             "func ftwo(){var nectarine : String = \"Hello\"} " \
+                                             "func fthree(){var nectarine : String = \"Hello\"} " \
+                                             "var Pear : Bool = true "
+
+OneFunctiononeparam = "func fone(Banana : Int ){var Apple : Int = 1 }fone()"
+OneFunctionmanyparam = "func fone(Banana : Int, Pear : Int, Pineapple : Int ){var Apple : Int = 1 }fone()"
 
 
 class TypeAndStatementTests(unittest.TestCase):
@@ -261,6 +268,15 @@ class ScopeCreationTests(unittest.TestCase):
         self.assertIsInstance(funcscope[0], Scope)
         self.assertEqual(1, len(funcscope))
 
+
+
+
+class FunctionSymbols(unittest.TestCase):
+    """
+    Tests that functions define appropriate symbols in the global scope and that
+    duplicates are appropriately reported.
+    """
+
     def test_duplicate_function_name(self):
         log, global_scope, inferred_types = do_semantic_analysis(OneFunctiontofindthem, 'script')
         self.assertEqual(2, len(global_scope.child_scopes))
@@ -270,13 +286,28 @@ class ScopeCreationTests(unittest.TestCase):
         self.assertIsInstance(funcscope[0], Scope)
         self.assertEqual(1, len(funcscope))
 
+    def test_multiple_function_name(self):
+        log, global_scope, inferred_types = do_semantic_analysis(ThreeFunctionsfortheElvenkingsunderthessky, 'script')
+        self.assertEqual(4, len(global_scope.child_scopes))
+        self.assertIsNotNone(global_scope.child_scope_named('fone'))
+        self.assertIsNotNone(global_scope.child_scope_named('ftwo'))
+        self.assertIsNotNone(global_scope.child_scope_named('fthree'))
 
-class FunctionSymbols(unittest.TestCase):
-    """
-    Tests that functions define appropriate symbols in the global scope and that
-    duplicates are appropriately reported.
-    """
-    pass
+    def test_function_one_parameter(self):
+        log, global_scope, inferred_types = do_semantic_analysis(OneFunctiononeparam, 'script')
+        self.assertEqual(2, len(global_scope.child_scopes))
+        self.assertIsNotNone(global_scope.child_scope_named('fone'))
+        funcscope = global_scope.all_child_scopes_named('fone')
+
+        self.assertEqual(1, funcscope[0].parameter_index)
+
+    def test_function_many_parameter(self):
+        log, global_scope, inferred_types = do_semantic_analysis(OneFunctionmanyparam, 'script')
+        self.assertEqual(2, len(global_scope.child_scopes))
+        self.assertIsNotNone(global_scope.child_scope_named('fone'))
+        funcscope = global_scope.all_child_scopes_named('fone')
+
+        self.assertEqual(3, funcscope[0].parameter_index)
 
 
 class ParameterAndVariableSymbols(unittest.TestCase):
