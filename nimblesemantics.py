@@ -40,11 +40,32 @@ from symboltable import Scope, FunctionType, PrimitiveType
 
 
 class DefineScopesAndSymbols(NimbleListener):
+    def remapTypes(self, vartype: str):
+        """
+        This function renames from the string of a type to the actual PrimitiveType
+        :param vartype: the string of the type
+        :return: PrimitiveType._____
+        """
+        if vartype == "Int":
+            mytype = PrimitiveType.Int
+
+        elif vartype == "String":
+            mytype = PrimitiveType.String
+
+        elif vartype == "Bool":
+            mytype = PrimitiveType.Bool
+
+        elif vartype == "Void":
+            mytype = PrimitiveType.Void
+
+        else:
+            mytype = PrimitiveType.ERROR
+
+        return mytype
 
     def __init__(self, error_log: ErrorLog):
         self.error_log = error_log
         self.current_scope = None
-        # todo add way to poll if there is already a name with that scope
 
     def enterScript(self, ctx: NimbleParser.ScriptContext):
         MyGlobal = Scope("$global", None, None)
@@ -54,26 +75,37 @@ class DefineScopesAndSymbols(NimbleListener):
     def enterFuncDef(self, ctx: NimbleParser.FuncDefContext):
         # adding testing to see if the function name as already been chosen
         test = self.current_scope.resolve(str(ctx.ID()))
+        returntype = ctx.TYPE()
+        if returntype:
+            returntype = returntype.getSymbol().text
+        else:
+            returntype = "Void"
 
+        returntype = self.remapTypes(returntype)  # Creates the return type in Primitive Notation
+
+        # Tests if the Function has already been defined
         if test:
             print("A function with this name has already been created")
+            self.error_log.add(ctx, Category.DUPLICATE_NAME, f"A function named {str(ctx.ID())}"
+                                                             f" has already been created\n")
             return
 
-        parameters = ctx.parameterDef()
-
-        myfunc = FunctionType(parameters, ctx.TYPE())
-
+        # Create the function Object
+        parameters = ctx.parameterDef()  # Create a list of parameters
+        myfunc = FunctionType(parameters, returntype)
         self.current_scope.define(ctx.ID(), myfunc)
 
+        # Create and move the scope.
         MyScope = Scope(str(ctx.ID()), ctx.TYPE(), self.current_scope)
-
-        self.current_scope.define(str(ctx.ID()), ctx.TYPE())
         ctx.scope = MyScope
         self.current_scope = MyScope
 
+        # Add all the parameters
         for parameter in parameters:
-            self.current_scope.define(parameter.ID(), parameter.TYPE(), True)
+            parameterType = self.remapTypes(parameter.TYPE().getSymbol().text)
+            self.current_scope.define(parameter.ID(), parameterType, True)
 
+        #Test if there are any duplicate parameters.
         scope_paras = self.current_scope.parameters()
         list_para = []
 
@@ -84,7 +116,7 @@ class DefineScopesAndSymbols(NimbleListener):
                 self.error_log.add(ctx, Category.DUPLICATE_NAME,
                                                 f"Illegal duplication of parameter name."
                                                f"\n\t")
-                return
+                return  #Will stop checking after first error
 
 
     def exitFuncDef(self, ctx: NimbleParser.FuncDefContext):
@@ -102,15 +134,34 @@ class DefineScopesAndSymbols(NimbleListener):
                 #print(real_return)
 
             #if self.current_scope.return_type and real_return != self.current_scope.return_type:
-                #self.error_log.add(ctx, Category.INVALID_RETURN,
-                                   #f"Invalid return of type {real_return}, expecting {self.current_scope.return_type}"
-                                   #f"\n\t")
-
+        # self.error_log.add(ctx, Category.INVALID_RETURN,
+        # f"Invalid return of type {real_return}, expecting {self.current_scope.return_type}"
+        # f"\n\t")
 
     def enterMain(self, ctx: NimbleParser.MainContext):
         MyMain = Scope("$main", None, self.current_scope)
         ctx.scope = MyMain
         self.current_scope = MyMain
+
+    def exitVarDec(self, ctx: NimbleParser.VarDecContext):
+        vartype = ctx.TYPE().getSymbol().text
+        varname = ctx.ID().getSymbol().text
+        self.current_scope.resolve_locally
+
+        mytype = self.remapTypes(vartype)
+
+        self.current_scope.define(varname, mytype)
+        scope_var = self.current_scope.local_variables()
+        list_var = []
+
+        for paras in scope_var:
+            list_var.append(str(paras.name))
+            if len(list_var) != len(set(list_var)):  # checks for duplicates
+
+                self.error_log.add(ctx, Category.DUPLICATE_NAME,
+                                   f"Illegal duplication of parameter name."
+                                   f"\n\t")
+                return
 
 
 class InferTypesAndCheckConstraints(NimbleListener):

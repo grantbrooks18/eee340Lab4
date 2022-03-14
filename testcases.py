@@ -124,22 +124,6 @@ VARASSIGN_TESTS_invalid = [
 
 ]
 
-OneFunctiontorulethemall = "func fone(){var Apple : Int = 1 }fone()"
-OneFunctiontofindthem = "func fone(){var Apple : Int = 1 } " \
-                        "func fone(){var nectarine : String = \"Hello\"} " \
-                        "var Pear : Bool = true "
-ThreeFunctionsfortheElvenkingsunderthessky = "func fone(){var Apple : Int = 1 } " \
-                                             "func ftwo(){var nectarine : String = \"Hello\"} " \
-                                             "func fthree(){var nectarine : String = \"Hello\"} " \
-                                             "var Pear : Bool = true "
-
-OneFunctiononeparam = "func fone(Banana : Int ){var Apple : Int = 1 }fone()"
-OneFunctionmanyparam = "func fone(Banana : Int, Banana : Int, Pineapple : Int ){var Apple : Int = 1 }fone()"
-
-
-ReturnTest = "func fone(Para1 : Int, Banana : Int, Pineapple : Int ) -> Int {var Apple : Bool = 1 return 1}fone()"
-ReturnTest1 = "func fone(Para1 : Int, Banana : Int, Pineapple : Int ) -> Int {var Apple : Int = 1 return Apple}fone()"
-
 
 
 class TypeAndStatementTests(unittest.TestCase):
@@ -239,6 +223,9 @@ class TypeAndStatementTests(unittest.TestCase):
         self.assertEqual(0, log.total_entries())
 
 
+OneFunctiontorulethemall = "func fone(){var Apple : Int = 1 }fone()"
+
+
 class ScopeCreationTests(unittest.TestCase):
     """
     Tests that scopes are being correctly created and attached to the parse tree,
@@ -274,6 +261,20 @@ class ScopeCreationTests(unittest.TestCase):
         self.assertEqual(1, len(funcscope))
 
 
+OneFunctiontofindthem = "func fone(){var Apple : Int = 1 } " \
+                        "func fone(){var nectarine : String = \"Hello\"} " \
+                        "var Pear : Bool = true "
+ThreeFunctionsfortheElvenkingsunderthessky = "func fone(){var Apple : Int = 1 } " \
+                                             "func ftwo(){var nectarine : String = \"Hello\"} " \
+                                             "func fthree(){var nectarine : String = \"Hello\"} " \
+                                             "var Pear : Bool = true "
+
+OneFunctiononeparam = "func fone(Banana : Int ){var Apple : Int = 1 }fone()"
+OneFunctionmanyparam = "func fone(Banana : Int, Pear : Int, Pineapple : Int ){var Apple : Int = 1 }fone()"
+OneFunctionBadparam = "func fone(Banana : Int, Banana : String, Pineapple : Int ){var Apple : Int = 1 }fone()"
+
+ReturnTest = "func fone(Para1 : Int, Banana : Int, Pineapple : Int ) -> Int {var Apple : Bool = 1 return 1}fone()"
+ReturnTest1 = "func fone(Para1 : Int, Banana : Int, Pineapple : Int ) -> Int {var Apple : Int = 1 return Apple}fone()"
 
 
 class FunctionSymbols(unittest.TestCase):
@@ -284,12 +285,11 @@ class FunctionSymbols(unittest.TestCase):
 
     def test_duplicate_function_name(self):
         log, global_scope, inferred_types = do_semantic_analysis(OneFunctiontofindthem, 'script')
-        self.assertEqual(2, len(global_scope.child_scopes))
+        self.assertEqual(3, len(global_scope.child_scopes))
         self.assertIsNotNone(global_scope.child_scope_named('fone'))
         funcscope = global_scope.all_child_scopes_named('fone')
         self.assertEqual(global_scope, funcscope[0].enclosing_scope)
-        self.assertIsInstance(funcscope[0], Scope)
-        self.assertEqual(1, len(funcscope))
+        self.assertIsNotNone(log)
 
     def test_multiple_function_name(self):
         log, global_scope, inferred_types = do_semantic_analysis(ThreeFunctionsfortheElvenkingsunderthessky, 'script')
@@ -311,17 +311,33 @@ class FunctionSymbols(unittest.TestCase):
         self.assertEqual(2, len(global_scope.child_scopes))
         self.assertIsNotNone(global_scope.child_scope_named('fone'))
         funcscope = global_scope.all_child_scopes_named('fone')
+
         self.assertEqual(3, funcscope[0].parameter_index)
 
+    def test_duplicate_parameters(self):
+        log, global_scope, inferred_types = do_semantic_analysis(OneFunctionBadparam, 'script')
+        self.assertEqual(2, len(global_scope.child_scopes))
+        self.assertIsNotNone(global_scope.child_scope_named('fone'))
+        funcscope = global_scope.all_child_scopes_named('fone')[0]
+        self.assertEqual(3, funcscope.parameter_index)
+        self.assertIsNotNone(log)
 
+    # Todo Fix this one, as it has zero errors
     def test_function_return_type(self):
         log, global_scope, inferred_types = do_semantic_analysis(ReturnTest, 'script')
-        self.assertEqual(1, log.total_entries()) #Bool returned as Int
+        self.assertEqual(1, log.total_entries())  # Bool returned as Int
 
     def test_function_return_type2(self):
         log, global_scope, inferred_types = do_semantic_analysis(ReturnTest1, 'script')
         self.assertEqual(0, log.total_entries())
 
+
+# Used to test the functions.
+OneInt = "var apple : Int"
+OneStr = "var pear : String"
+OneBool = "var apple : Bool"
+ThreVars = "var apple : Int var pear : String var apple : Bool"
+DoubleVars = "var apple : Int var apple : String"
 
 
 class ParameterAndVariableSymbols(unittest.TestCase):
@@ -329,7 +345,43 @@ class ParameterAndVariableSymbols(unittest.TestCase):
     Tests that parameters and variables define appropriate symbols in
     appropriate scopes, and that duplicates are appropriately reported.
     """
-    pass
+
+    def test_One_Int(self):
+        log, global_scope, inferred_types = do_semantic_analysis(OneInt, 'script')
+        testing = global_scope.all_child_scopes_named('$main')[0]
+
+        self.assertEqual(1, testing.variable_index)
+        testvar = testing.resolve('apple')
+        self.assertEqual(PrimitiveType.Int, testvar.type)
+
+    def test_One_string(self):
+        log, global_scope, inferred_types = do_semantic_analysis(OneStr, 'script')
+        testing = global_scope.all_child_scopes_named('$main')[0]
+
+        self.assertEqual(1, testing.variable_index)
+        testvar = testing.resolve('pear')
+        self.assertEqual(PrimitiveType.String, testvar.type)
+
+    def test_One_Bool(self):
+        log, global_scope, inferred_types = do_semantic_analysis(OneBool, 'script')
+        testing = global_scope.all_child_scopes_named('$main')[0]
+
+        self.assertEqual(1, testing.variable_index)
+        testvar = testing.resolve('apple')
+        self.assertEqual(PrimitiveType.Bool, testvar.type)
+
+    def test_Three_Vars(self):
+        log, global_scope, inferred_types = do_semantic_analysis(ThreVars, 'script')
+        testing = global_scope.all_child_scopes_named('$main')[0]
+
+        self.assertEqual(3, testing.variable_index)
+        # //Not testing if individual variables make it in because we know that they all make it individually
+
+    def test_Eliminate_duplicates(self):
+        log, global_scope, inferred_types = do_semantic_analysis(DoubleVars, 'script')
+        testing = global_scope.all_child_scopes_named('$main')[0]
+
+        self.assertEqual(1, testing.variable_index)
 
 
 class FunctionTests(unittest.TestCase):
