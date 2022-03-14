@@ -125,7 +125,9 @@ VARASSIGN_TESTS_invalid = [
 ]
 
 OneFunctiontorulethemall = "func fone(){var Apple : Int = 1 }fone()"
-OneFunctiontofindthem = "func fone(){var Apple : Int = 1 }fone(){var nectarine : String = \"Hello\"  }fone()"
+OneFunctiontofindthem = "func fone(){var Apple : Int = 1 } " \
+                        "func fone(){var nectarine : String = \"Hello\"} " \
+                        "var Pear : Bool = true "
 
 
 class TypeAndStatementTests(unittest.TestCase):
@@ -259,7 +261,14 @@ class ScopeCreationTests(unittest.TestCase):
         self.assertIsInstance(funcscope[0], Scope)
         self.assertEqual(1, len(funcscope))
 
-        # todo Add a test to add one function call.
+    def test_duplicate_function_name(self):
+        log, global_scope, inferred_types = do_semantic_analysis(OneFunctiontofindthem, 'script')
+        self.assertEqual(2, len(global_scope.child_scopes))
+        self.assertIsNotNone(global_scope.child_scope_named('fone'))
+        funcscope = global_scope.all_child_scopes_named('fone')
+        self.assertEqual(global_scope, funcscope[0].enclosing_scope)
+        self.assertIsInstance(funcscope[0], Scope)
+        self.assertEqual(1, len(funcscope))
 
 
 class FunctionSymbols(unittest.TestCase):

@@ -52,7 +52,15 @@ class DefineScopesAndSymbols(NimbleListener):
         self.current_scope = MyGlobal
 
     def enterFuncDef(self, ctx: NimbleParser.FuncDefContext):
+        # adding testing to see if the function name as already been chosen
+        test = self.current_scope.resolve(ctx.ID())
+
+        if not test:
+            raise "A function with this name has already been created"
+
         MyScope = Scope(str(ctx.ID()), ctx.TYPE(), self.current_scope)
+
+        self.current_scope.define(str(ctx.ID()), ctx.TYPE())
         ctx.scope = MyScope
         self.current_scope = MyScope
 
