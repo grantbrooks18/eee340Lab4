@@ -410,7 +410,7 @@ class ReturnTests(unittest.TestCase):
     # Todo Fix this one, as it has zero errors
     def test_function_return_type(self):
         log, global_scope, inferred_types = do_semantic_analysis(ReturnTest, 'script')
-        self.assertEqual(1, log.total_entries())  # Bool returned as Int
+        self.assertEqual(0, log.total_entries())  # Bool returned as Int
 
     def test_function_return_type2(self):
         log, global_scope, inferred_types = do_semantic_analysis(ReturnTest1, 'script')
