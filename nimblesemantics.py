@@ -74,8 +74,38 @@ class DefineScopesAndSymbols(NimbleListener):
         for parameter in parameters:
             self.current_scope.define(parameter.ID(), parameter.TYPE(), True)
 
+        scope_paras = self.current_scope.parameters()
+        list_para = []
+
+        for paras in scope_paras:
+            list_para.append(str(paras.name))
+            if len(list_para) != len(set(list_para)): #checks for duplicates
+
+                self.error_log.add(ctx, Category.DUPLICATE_NAME,
+                                                f"Illegal duplication of parameter name."
+                                               f"\n\t")
+                return
+
+
     def exitFuncDef(self, ctx: NimbleParser.FuncDefContext):
         self.current_scope = ctx.parentCtx.scope
+        self.current_scope.return_type = ctx.TYPE()
+
+        if ctx.TYPE(): #expect a return value, check if it matches
+                real_return = ctx.body().block().statement()[-1].expr()
+                print(type(real_return))
+
+            #if self.current_scope.resolve("Apple").type: #return expr not literal
+                #real_return = self.current_scope.resolve("1").type #resolve return expr, get type
+
+                #print(self.current_scope.return_type)
+                #print(real_return)
+
+            #if self.current_scope.return_type and real_return != self.current_scope.return_type:
+                #self.error_log.add(ctx, Category.INVALID_RETURN,
+                                   #f"Invalid return of type {real_return}, expecting {self.current_scope.return_type}"
+                                   #f"\n\t")
+
 
     def enterMain(self, ctx: NimbleParser.MainContext):
         MyMain = Scope("$main", None, self.current_scope)

@@ -134,7 +134,12 @@ ThreeFunctionsfortheElvenkingsunderthessky = "func fone(){var Apple : Int = 1 } 
                                              "var Pear : Bool = true "
 
 OneFunctiononeparam = "func fone(Banana : Int ){var Apple : Int = 1 }fone()"
-OneFunctionmanyparam = "func fone(Banana : Int, Pear : Int, Pineapple : Int ){var Apple : Int = 1 }fone()"
+OneFunctionmanyparam = "func fone(Banana : Int, Banana : Int, Pineapple : Int ){var Apple : Int = 1 }fone()"
+
+
+ReturnTest = "func fone(Para1 : Int, Banana : Int, Pineapple : Int ) -> Int {var Apple : Bool = 1 return 1}fone()"
+ReturnTest1 = "func fone(Para1 : Int, Banana : Int, Pineapple : Int ) -> Int {var Apple : Int = 1 return Apple}fone()"
+
 
 
 class TypeAndStatementTests(unittest.TestCase):
@@ -306,8 +311,17 @@ class FunctionSymbols(unittest.TestCase):
         self.assertEqual(2, len(global_scope.child_scopes))
         self.assertIsNotNone(global_scope.child_scope_named('fone'))
         funcscope = global_scope.all_child_scopes_named('fone')
-
         self.assertEqual(3, funcscope[0].parameter_index)
+
+
+    def test_function_return_type(self):
+        log, global_scope, inferred_types = do_semantic_analysis(ReturnTest, 'script')
+        self.assertEqual(1, log.total_entries()) #Bool returned as Int
+
+    def test_function_return_type2(self):
+        log, global_scope, inferred_types = do_semantic_analysis(ReturnTest1, 'script')
+        self.assertEqual(0, log.total_entries())
+
 
 
 class ParameterAndVariableSymbols(unittest.TestCase):
